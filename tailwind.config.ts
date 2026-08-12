@@ -17,6 +17,12 @@ const config: Config = {
           800: "#204032",
           900: "#1b352a",
         },
+        paper: {
+          DEFAULT: "#F5F4ED",
+          50: "#FAF9F5",
+          100: "#F5F4ED",
+          200: "#EDEAE0",
+        },
       },
     },
   },

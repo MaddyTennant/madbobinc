@@ -30,5 +30,5 @@ export async function createWorkspaceAction(formData: FormData): Promise<void> {
   });
 
   await createSession({ ...session!, workspaceId: workspace.id, role: "OWNER" });
-  redirect("/dashboard");
+  redirect("/query");
 }

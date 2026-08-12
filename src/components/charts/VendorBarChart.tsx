@@ -6,7 +6,7 @@ import { formatCurrency } from "@/lib/format";
 import { SEQUENTIAL_BLUE } from "@/lib/colors";
 
 export function VendorBarChart({ data, currency }: { data: VendorSlice[]; currency: string }) {
-  if (data.length === 0) return <p className="text-sm text-slate-500">No vendor spend recorded this month yet.</p>;
+  if (data.length === 0) return <p className="text-sm text-stone-500">No vendor spend recorded this month yet.</p>;
 
   return (
     <ResponsiveContainer width="100%" height={Math.max(160, data.length * 36)}>

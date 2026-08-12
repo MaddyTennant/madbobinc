@@ -58,7 +58,7 @@ async function main() {
 
   const workspace = await db.workspace.create({
     data: {
-      name: "Blue Anchor Bistro",
+      name: "Ruths",
       location: "Amsterdam, NL",
       currency: "EUR",
       fiscalMonthStart: 1,
@@ -71,10 +71,10 @@ async function main() {
 
   const users = await Promise.all(
     [
-      { email: "owner@blueanchor.demo", name: "Mira Alden", role: "OWNER" as const },
-      { email: "finance@blueanchor.demo", name: "Tomas Reyes", role: "FINANCE_MANAGER" as const },
-      { email: "kitchen@blueanchor.demo", name: "Priya Nandy", role: "KITCHEN_MANAGER" as const },
-      { email: "viewer@blueanchor.demo", name: "Sam Okafor", role: "VIEWER" as const },
+      { email: "owner@ruths.demo", name: "Mira Alden", role: "OWNER" as const },
+      { email: "finance@ruths.demo", name: "Tomas Reyes", role: "FINANCE_MANAGER" as const },
+      { email: "kitchen@ruths.demo", name: "Priya Nandy", role: "KITCHEN_MANAGER" as const },
+      { email: "viewer@ruths.demo", name: "Sam Okafor", role: "VIEWER" as const },
     ].map(async (u) => {
       const user = await db.user.create({
         data: { email: u.email, name: u.name, passwordHash: await hashPassword(DEMO_PASSWORD) },
@@ -285,7 +285,7 @@ async function main() {
   });
 
   console.log("\nDemo login (any role, same password):");
-  console.log("  owner@blueanchor.demo / finance@blueanchor.demo / kitchen@blueanchor.demo / viewer@blueanchor.demo");
+  console.log("  owner@ruths.demo / finance@ruths.demo / kitchen@ruths.demo / viewer@ruths.demo");
   console.log(`  password: ${DEMO_PASSWORD}`);
 }
 

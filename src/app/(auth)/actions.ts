@@ -51,7 +51,7 @@ export async function loginAction(formData: FormData): Promise<void> {
     role: membership?.role ?? "OWNER",
   });
 
-  redirect(membership ? "/dashboard" : "/workspace/new");
+  redirect(membership ? "/query" : "/workspace/new");
 }
 
 export async function logoutAction(): Promise<void> {

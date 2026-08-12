@@ -9,10 +9,10 @@ export default async function CsvImportPage({
   const { error, imported, skipped, errors } = await searchParams;
 
   return (
-    <div className="max-w-xl space-y-6">
+    <div className="max-w-xl space-y-6 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Import from CSV</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-xl font-semibold text-stone-900">Import from CSV</h1>
+        <p className="text-sm text-stone-500">
           Columns: <code>date, vendor, description, amount</code>, plus optional <code>category</code> (a category
           key such as <code>food_cost</code>) and <code>cost_center</code>.
         </p>

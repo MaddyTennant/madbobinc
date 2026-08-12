@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import { Logo } from "@/components/Logo";
 import { createWorkspaceAction } from "./actions";
 
 export default async function NewWorkspacePage({
@@ -12,10 +13,13 @@ export default async function NewWorkspacePage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
       <div className="w-full max-w-md">
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Set up your venue</h1>
-        <p className="mb-6 text-sm text-slate-500">
+        <div className="mb-3 flex items-center gap-2">
+          <Logo />
+        </div>
+        <h1 className="mb-1 text-2xl font-semibold text-stone-900">Set up your venue</h1>
+        <p className="mb-6 text-sm text-stone-500">
           This creates a private workspace — all connected data and AI insights stay inside it.
         </p>
 

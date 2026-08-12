@@ -5,7 +5,7 @@ import type { CategorySlice } from "@/lib/analytics/aggregate";
 import { formatCurrency } from "@/lib/format";
 
 export function CategoryBarChart({ data, currency }: { data: CategorySlice[]; currency: string }) {
-  if (data.length === 0) return <p className="text-sm text-slate-500">No spend recorded this month yet.</p>;
+  if (data.length === 0) return <p className="text-sm text-stone-500">No spend recorded this month yet.</p>;
 
   return (
     <ResponsiveContainer width="100%" height={Math.max(160, data.length * 36)}>

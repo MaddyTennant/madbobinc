@@ -35,10 +35,10 @@ export default async function TeamPage({
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-6 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Team</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-xl font-semibold text-stone-900">Team</h1>
+        <p className="text-sm text-stone-500">
           Everyone here can only see data inside this workspace. Roles control what they can act on.
         </p>
       </div>
@@ -46,7 +46,7 @@ export default async function TeamPage({
       {inviteLink ? (
         <div className="card border-brand-200 bg-brand-50">
           <p className="text-sm font-medium text-brand-800">Invite link generated — share it with your teammate:</p>
-          <p className="mt-2 break-all rounded-md bg-white px-3 py-2 font-mono text-xs text-slate-700">
+          <p className="mt-2 break-all rounded-md bg-white px-3 py-2 font-mono text-xs text-stone-700">
             {inviteLink}
           </p>
           <p className="mt-2 text-xs text-brand-700">Valid for 14 days. It grants exactly the role selected below.</p>
@@ -54,10 +54,10 @@ export default async function TeamPage({
       ) : null}
 
       <div className="card">
-        <h2 className="mb-3 font-medium text-slate-900">Members</h2>
+        <h2 className="mb-3 font-medium text-stone-900">Members</h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-stone-200 text-left text-stone-500">
               <th className="pb-2 font-medium">Name</th>
               <th className="pb-2 font-medium">Email</th>
               <th className="pb-2 font-medium">Role</th>
@@ -65,9 +65,9 @@ export default async function TeamPage({
           </thead>
           <tbody>
             {memberships.map((m) => (
-              <tr key={m.id} className="border-b border-slate-100 last:border-0">
+              <tr key={m.id} className="border-b border-stone-100 last:border-0">
                 <td className="py-2">{m.user.name}</td>
-                <td className="py-2 text-slate-500">{m.user.email}</td>
+                <td className="py-2 text-stone-500">{m.user.email}</td>
                 <td className="py-2">{ROLE_LABELS[m.role]}</td>
               </tr>
             ))}
@@ -77,7 +77,7 @@ export default async function TeamPage({
 
       {canManage ? (
         <div className="card max-w-md">
-          <h2 className="mb-3 font-medium text-slate-900">Invite a teammate</h2>
+          <h2 className="mb-3 font-medium text-stone-900">Invite a teammate</h2>
           {error ? <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
           <form action={createInviteAction} className="space-y-4">
             <div>

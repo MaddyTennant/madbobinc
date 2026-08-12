@@ -24,16 +24,16 @@ export default async function VendorsPage() {
     .sort((a, b) => b.total - a.total);
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="max-w-4xl space-y-6 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Vendors</h1>
-        <p className="text-sm text-slate-500">Trailing 12-month spend across all connected sources.</p>
+        <h1 className="text-xl font-semibold text-stone-900">Vendors</h1>
+        <p className="text-sm text-stone-500">Trailing 12-month spend across all connected sources.</p>
       </div>
 
       <div className="card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-stone-200 text-left text-stone-500">
               <th className="pb-2 font-medium">Vendor</th>
               <th className="pb-2 font-medium">Payment terms</th>
               <th className="pb-2 font-medium">Transactions</th>
@@ -42,14 +42,14 @@ export default async function VendorsPage() {
           </thead>
           <tbody>
             {rows.map(({ vendor, total, count }) => (
-              <tr key={vendor.id} className="border-b border-slate-100 last:border-0">
+              <tr key={vendor.id} className="border-b border-stone-100 last:border-0">
                 <td className="py-2">
                   <Link href={`/vendors/${vendor.id}`} className="font-medium text-brand-600 hover:underline">
                     {vendor.name}
                   </Link>
                 </td>
-                <td className="py-2 text-slate-500">{vendor.paymentTerms ?? "—"}</td>
-                <td className="py-2 text-slate-500">{count}</td>
+                <td className="py-2 text-stone-500">{vendor.paymentTerms ?? "—"}</td>
+                <td className="py-2 text-stone-500">{count}</td>
                 <td className="py-2">{formatCurrency(total, workspace.currency)}</td>
               </tr>
             ))}

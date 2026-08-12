@@ -32,13 +32,13 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
   const canGenerateBrief = can(session.role, "budgets:manage");
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-6 p-8">
       <div>
         <Link href="/vendors" className="text-sm text-brand-600 hover:underline">
           &larr; Vendors
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-slate-900">{vendor.name}</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="mt-1 text-xl font-semibold text-stone-900">{vendor.name}</h1>
+        <p className="text-sm text-stone-500">
           {vendor.paymentTerms ? `Payment terms: ${vendor.paymentTerms} · ` : ""}
           All-time spend: {formatCurrency(spendAgg._sum.amount ?? 0, workspace.currency)}
         </p>
@@ -46,12 +46,12 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       {lineItemsBySku.size > 0 ? (
         <div className="card">
-          <h2 className="mb-3 font-medium text-slate-900">Unit price trend per SKU</h2>
+          <h2 className="mb-3 font-medium text-stone-900">Unit price trend per SKU</h2>
           <div className="space-y-3">
             {[...lineItemsBySku.entries()].map(([sku, points]) => (
               <div key={sku}>
-                <p className="text-xs font-medium text-slate-500">{sku}</p>
-                <p className="text-sm text-slate-700">
+                <p className="text-xs font-medium text-stone-500">{sku}</p>
+                <p className="text-sm text-stone-700">
                   {points.map((p) => `€${p.unitPrice.toFixed(2)} (${p.date})`).join(" → ")}
                 </p>
               </div>
@@ -62,7 +62,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
 
       <div className="card">
         <div className="flex items-center justify-between">
-          <h2 className="font-medium text-slate-900">AI negotiation brief</h2>
+          <h2 className="font-medium text-stone-900">AI negotiation brief</h2>
           {canGenerateBrief ? (
             <form action={generateBriefAction}>
               <input type="hidden" name="vendorId" value={vendor.id} />
@@ -74,24 +74,24 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
         </div>
         {vendor.negotiationBrief ? (
           <>
-            <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-slate-700">{vendor.negotiationBrief}</pre>
-            <p className="mt-2 text-xs text-slate-400">
+            <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-stone-700">{vendor.negotiationBrief}</pre>
+            <p className="mt-2 text-xs text-stone-400">
               Generated {vendor.negotiationBriefAt?.toLocaleString("en-US")}
             </p>
           </>
         ) : (
-          <p className="mt-2 text-sm text-slate-500">No brief generated yet.</p>
+          <p className="mt-2 text-sm text-stone-500">No brief generated yet.</p>
         )}
       </div>
 
       <div className="card">
-        <h2 className="mb-3 font-medium text-slate-900">Invoice history</h2>
+        <h2 className="mb-3 font-medium text-stone-900">Invoice history</h2>
         {invoices.length === 0 ? (
-          <p className="text-sm text-slate-500">No invoices yet.</p>
+          <p className="text-sm text-stone-500">No invoices yet.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-stone-200 text-left text-stone-500">
                 <th className="pb-2 font-medium">Invoice</th>
                 <th className="pb-2 font-medium">Date</th>
                 <th className="pb-2 font-medium">Amount</th>
@@ -100,11 +100,11 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
             </thead>
             <tbody>
               {invoices.map((inv) => (
-                <tr key={inv.id} className="border-b border-slate-100 last:border-0">
+                <tr key={inv.id} className="border-b border-stone-100 last:border-0">
                   <td className="py-2">{inv.invoiceNumber}</td>
-                  <td className="py-2 text-slate-500">{inv.invoiceDate.toDateString()}</td>
+                  <td className="py-2 text-stone-500">{inv.invoiceDate.toDateString()}</td>
                   <td className="py-2">{formatCurrency(inv.totalAmount, workspace.currency)}</td>
-                  <td className="py-2 text-slate-500">{inv.source}</td>
+                  <td className="py-2 text-stone-500">{inv.source}</td>
                 </tr>
               ))}
             </tbody>

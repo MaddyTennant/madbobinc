@@ -56,5 +56,5 @@ export async function acceptInviteAction(formData: FormData): Promise<void> {
     role: invite!.role,
   });
 
-  redirect("/dashboard");
+  redirect("/query");
 }

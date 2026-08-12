@@ -29,7 +29,7 @@ export function EmbedQueryBox({ token }: { token: string }) {
 
   return (
     <div className="card">
-      <h2 className="mb-3 font-medium text-slate-900">Ask about this restaurant's spend</h2>
+      <h2 className="mb-3 font-medium text-stone-900">Ask about this restaurant's spend</h2>
       <form onSubmit={ask} className="flex gap-2">
         <input
           className="input"
@@ -41,7 +41,7 @@ export function EmbedQueryBox({ token }: { token: string }) {
           {busy ? "Asking…" : "Ask"}
         </button>
       </form>
-      {answer ? <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{answer}</p> : null}
+      {answer ? <p className="mt-3 whitespace-pre-wrap text-sm text-stone-700">{answer}</p> : null}
     </div>
   );
 }

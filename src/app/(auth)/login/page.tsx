@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { loginAction } from "../actions";
 
 export default async function LoginPage({
@@ -9,10 +10,12 @@ export default async function LoginPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Madbob Spend</h1>
-        <p className="mb-6 text-sm text-slate-500">AI-driven spend management for restaurants.</p>
+        <div className="mb-6 flex items-center gap-2">
+          <Logo />
+          <h1 className="text-xl font-semibold text-stone-900">Madbob Spend</h1>
+        </div>
 
         <form action={loginAction} className="card space-y-4">
           {error ? (
@@ -42,7 +45,7 @@ export default async function LoginPage({
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm text-stone-500">
           No account yet?{" "}
           <Link className="font-medium text-brand-600 hover:underline" href="/signup">
             Sign up

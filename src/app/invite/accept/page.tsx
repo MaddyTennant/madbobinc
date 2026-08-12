@@ -11,8 +11,8 @@ export default async function AcceptInvitePage({
 
   if (!token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-        <p className="text-sm text-slate-600">Missing invite token.</p>
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
+        <p className="text-sm text-stone-600">Missing invite token.</p>
       </div>
     );
   }
@@ -20,7 +20,7 @@ export default async function AcceptInvitePage({
   const invite = await verifyInviteToken(token);
   if (!invite) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
         <p className="text-sm text-red-600">This invite link is invalid or has expired.</p>
       </div>
     );
@@ -32,10 +32,10 @@ export default async function AcceptInvitePage({
   ]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Join {workspace?.name}</h1>
-        <p className="mb-6 text-sm text-slate-500">
+        <h1 className="mb-1 text-2xl font-semibold text-stone-900">Join {workspace?.name}</h1>
+        <p className="mb-6 text-sm text-stone-500">
           You&apos;ve been invited as <span className="font-medium">{invite.role.replace("_", " ")}</span>.
         </p>
 
@@ -44,7 +44,7 @@ export default async function AcceptInvitePage({
           {error ? <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
           <div>
             <label className="label">Email</label>
-            <input className="input bg-slate-100" value={invite.email} disabled readOnly />
+            <input className="input bg-stone-100" value={invite.email} disabled readOnly />
           </div>
           {!existingUser ? (
             <div>

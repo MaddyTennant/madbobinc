@@ -67,7 +67,7 @@ export function ApiKeyManager({ initialKeys }: { initialKeys: ApiKeyRow[] }) {
       {revealedKey ? (
         <div className="card border-brand-200 bg-brand-50">
           <p className="text-sm font-medium text-brand-800">Copy this key now — it will not be shown again:</p>
-          <p className="mt-2 break-all rounded-md bg-white px-3 py-2 font-mono text-xs text-slate-700">{revealedKey}</p>
+          <p className="mt-2 break-all rounded-md bg-white px-3 py-2 font-mono text-xs text-stone-700">{revealedKey}</p>
         </div>
       ) : null}
 
@@ -104,7 +104,7 @@ export function ApiKeyManager({ initialKeys }: { initialKeys: ApiKeyRow[] }) {
       <div className="card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-left text-slate-500">
+            <tr className="border-b border-stone-200 text-left text-stone-500">
               <th className="pb-2 font-medium">Label</th>
               <th className="pb-2 font-medium">Key</th>
               <th className="pb-2 font-medium">Scopes</th>
@@ -114,13 +114,13 @@ export function ApiKeyManager({ initialKeys }: { initialKeys: ApiKeyRow[] }) {
           </thead>
           <tbody>
             {keys.map((k) => (
-              <tr key={k.id} className="border-b border-slate-100 last:border-0">
+              <tr key={k.id} className="border-b border-stone-100 last:border-0">
                 <td className="py-2">{k.label}</td>
-                <td className="py-2 font-mono text-xs text-slate-500">{k.keyPrefix}…</td>
-                <td className="py-2 text-slate-500">{k.scopes.join(", ")}</td>
+                <td className="py-2 font-mono text-xs text-stone-500">{k.keyPrefix}…</td>
+                <td className="py-2 text-stone-500">{k.scopes.join(", ")}</td>
                 <td className="py-2">
                   {k.revokedAt ? (
-                    <span className="badge bg-slate-100 text-slate-400">Revoked</span>
+                    <span className="badge bg-stone-100 text-stone-400">Revoked</span>
                   ) : (
                     <span className="badge bg-emerald-100 text-emerald-700">Active</span>
                   )}
@@ -128,7 +128,7 @@ export function ApiKeyManager({ initialKeys }: { initialKeys: ApiKeyRow[] }) {
                 <td className="py-2">
                   {!k.revokedAt ? (
                     <button
-                      className="text-xs font-medium text-slate-500 hover:underline"
+                      className="text-xs font-medium text-stone-500 hover:underline"
                       onClick={() => handleRevoke(k.id)}
                       disabled={busy}
                     >

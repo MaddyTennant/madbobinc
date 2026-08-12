@@ -16,7 +16,7 @@ function actualColor(actual: number, budget: number): string {
 }
 
 export function BudgetVsActualChart({ data, currency }: { data: BudgetComparison[]; currency: string }) {
-  if (data.length === 0) return <p className="text-sm text-slate-500">No budgets set for this month yet.</p>;
+  if (data.length === 0) return <p className="text-sm text-stone-500">No budgets set for this month yet.</p>;
 
   return (
     <div>

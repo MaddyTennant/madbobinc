@@ -12,8 +12,8 @@ export default async function EmbedPage({ params }: { params: Promise<{ token: s
 
   if (!key || !requireScope(key, "embed")) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-8">
-        <p className="text-sm text-slate-500">This embed link is invalid or has been revoked.</p>
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 p-8">
+        <p className="text-sm text-stone-500">This embed link is invalid or has been revoked.</p>
       </div>
     );
   }
@@ -22,10 +22,10 @@ export default async function EmbedPage({ params }: { params: Promise<{ token: s
   const summary = await getDashboardSummary(key.workspaceId);
 
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50 p-6">
+    <div className="min-h-screen space-y-6 bg-stone-50 p-6">
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{workspace.name}</p>
-        <h1 className="text-lg font-semibold text-slate-900">Spend overview — {summary.periodLabel}</h1>
+        <p className="text-xs font-medium uppercase tracking-wide text-stone-400">{workspace.name}</p>
+        <h1 className="text-lg font-semibold text-stone-900">Spend overview — {summary.periodLabel}</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -36,13 +36,13 @@ export default async function EmbedPage({ params }: { params: Promise<{ token: s
       </div>
 
       <div className="card">
-        <h2 className="mb-3 font-medium text-slate-900">Spend by category</h2>
+        <h2 className="mb-3 font-medium text-stone-900">Spend by category</h2>
         <CategoryBarChart data={summary.byCategory} currency={summary.currency} />
       </div>
 
       <EmbedQueryBox token={token} />
 
-      <p className="text-center text-xs text-slate-300">Powered by Madbob Spend — read-only view</p>
+      <p className="text-center text-xs text-stone-300">Powered by Madbob Spend — read-only view</p>
     </div>
   );
 }

@@ -13,10 +13,10 @@ export default async function DashboardPage() {
   const spendDelta = formatDelta(summary.totalSpendMTD, summary.totalSpendSamePointLastMonth);
 
   return (
-    <div className="max-w-6xl space-y-8">
+    <div className="max-w-6xl space-y-8 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">Spend analyst dashboard</h1>
-        <p className="text-sm text-slate-500">{summary.periodLabel} — month to date, all figures in {summary.currency}.</p>
+        <h1 className="text-xl font-semibold text-stone-900">Spend analyst dashboard</h1>
+        <p className="text-sm text-stone-500">{summary.periodLabel} — month to date, all figures in {summary.currency}.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
@@ -46,22 +46,22 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card">
-          <h2 className="mb-3 font-medium text-slate-900">Spend by category</h2>
+          <h2 className="mb-3 font-medium text-stone-900">Spend by category</h2>
           <CategoryBarChart data={summary.byCategory} currency={summary.currency} />
         </div>
         <div className="card">
-          <h2 className="mb-3 font-medium text-slate-900">Top vendors</h2>
+          <h2 className="mb-3 font-medium text-stone-900">Top vendors</h2>
           <VendorBarChart data={summary.byVendor} currency={summary.currency} />
         </div>
       </div>
 
       <div className="card">
-        <h2 className="mb-3 font-medium text-slate-900">Spend vs. revenue — last 6 months</h2>
+        <h2 className="mb-3 font-medium text-stone-900">Spend vs. revenue — last 6 months</h2>
         <TrendLineChart data={summary.monthlyTrend} currency={summary.currency} />
       </div>
 
       <div className="card">
-        <h2 className="mb-3 font-medium text-slate-900">Budget vs. actual — this month</h2>
+        <h2 className="mb-3 font-medium text-stone-900">Budget vs. actual — this month</h2>
         <BudgetVsActualChart data={summary.budgetVsActual} currency={summary.currency} />
       </div>
     </div>

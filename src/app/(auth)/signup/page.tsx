@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { signupAction } from "../actions";
 
 export default async function SignupPage({
@@ -9,10 +10,14 @@ export default async function SignupPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-2xl font-semibold text-slate-900">Create your account</h1>
-        <p className="mb-6 text-sm text-slate-500">
+        <div className="mb-3 flex items-center gap-2">
+          <Logo />
+          <span className="text-sm font-medium text-stone-500">Madbob Spend</span>
+        </div>
+        <h1 className="mb-1 text-2xl font-semibold text-stone-900">Create your account</h1>
+        <p className="mb-6 text-sm text-stone-500">
           Your data stays inside your restaurant&apos;s own workspace.
         </p>
 
@@ -51,7 +56,7 @@ export default async function SignupPage({
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm text-stone-500">
           Already have an account?{" "}
           <Link className="font-medium text-brand-600 hover:underline" href="/login">
             Log in

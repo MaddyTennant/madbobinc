@@ -1,0 +1,338 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Tenancy
+// ---------------------------------------------------------------------------
+
+model Workspace {
+  id                String   @id @default(cuid())
+  name              String
+  location          String
+  currency          String   @default("USD")
+  fiscalMonthStart  Int      @default(1) // day of month, 1-28
+  approvalThreshold Float    @default(500) // purchase requests above this amount require approval
+  createdAt         DateTime @default(now())
+
+  memberships      Membership[]
+  connectors       Connector[]
+  webhookEndpoints WebhookEndpoint[]
+  vendors          Vendor[]
+  invoices         Invoice[]
+  purchaseOrders   PurchaseOrder[]
+  transactions     Transaction[]
+  categories       Category[]
+  budgets          Budget[]
+  approvalRequests ApprovalRequest[]
+  insights         Insight[]
+  queryHistory     QueryHistory[]
+  apiKeys          ApiKey[]
+}
+
+enum Role {
+  OWNER
+  FINANCE_MANAGER
+  KITCHEN_MANAGER
+  VIEWER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  memberships Membership[]
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  role      Role
+  createdAt DateTime @default(now())
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId])
+}
+
+// ---------------------------------------------------------------------------
+// Integration hub
+// ---------------------------------------------------------------------------
+
+enum ConnectorType {
+  POS
+  ACCOUNTING
+  SUPPLIER
+  BANK
+  PAYROLL
+  DELIVERY
+}
+
+enum ConnectorStatus {
+  DISCONNECTED
+  CONNECTED
+  SYNCING
+  ERROR
+}
+
+model Connector {
+  id              String          @id @default(cuid())
+  type            ConnectorType
+  provider        String // e.g. "toast", "square", "quickbooks", "xero"
+  status          ConnectorStatus @default(DISCONNECTED)
+  // AES-256-GCM encrypted JSON blob of provider credentials/config. Never sent to the client.
+  encryptedConfig String?
+  lastSyncAt      DateTime?
+  recordCount     Int             @default(0)
+  lastError       String?
+  createdAt       DateTime        @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, type, provider])
+}
+
+model WebhookEndpoint {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  label       String
+  createdAt   DateTime  @default(now())
+  lastEventAt DateTime?
+  eventCount  Int       @default(0)
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// Unified spend data layer
+// ---------------------------------------------------------------------------
+
+model Category {
+  id     String  @id @default(cuid())
+  key    String // food_cost, beverage, labor, utilities, rent, marketing, repairs, delivery_fees, software, other
+  label  String
+  glCode String?
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([workspaceId, key])
+}
+
+model Vendor {
+  id                 String    @id @default(cuid())
+  name               String
+  defaultCategoryKey String?
+  paymentTerms       String?
+  negotiationBrief   String?
+  negotiationBriefAt DateTime?
+  createdAt          DateTime  @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  invoices       Invoice[]
+  purchaseOrders PurchaseOrder[]
+  transactions   Transaction[]
+
+  @@unique([workspaceId, name])
+}
+
+model PurchaseOrder {
+  id          String   @id @default(cuid())
+  poNumber    String
+  status      String   @default("open")
+  totalAmount Float
+  createdAt   DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  vendorId    String
+  vendor      Vendor    @relation(fields: [vendorId], references: [id])
+
+  invoices Invoice[]
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  invoiceNumber String
+  invoiceDate   DateTime
+  totalAmount   Float
+  source        String // connector provider or "csv" / "webhook" / "manual"
+  createdAt     DateTime @default(now())
+
+  workspaceId     String
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id])
+  vendorId        String
+  vendor          Vendor         @relation(fields: [vendorId], references: [id])
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+
+  lineItems    InvoiceLineItem[]
+  transactions Transaction[]
+}
+
+model InvoiceLineItem {
+  id          String  @id @default(cuid())
+  sku         String?
+  description String
+  quantity    Float
+  unitPrice   Float
+  amount      Float
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+enum TransactionKind {
+  EXPENSE
+  REVENUE
+}
+
+model Transaction {
+  id                 String          @id @default(cuid())
+  date               DateTime
+  description        String
+  amount             Float
+  kind               TransactionKind @default(EXPENSE)
+  source             String // pos / accounting / supplier / bank / payroll / delivery / csv / webhook / manual
+  costCenter         String? // e.g. "kitchen", "bar", "front-of-house", "hq"
+  categoryConfidence Float           @default(1)
+  categorizedBy      String          @default("rule") // "rule" | "manual" | "llm"
+  createdAt          DateTime        @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  vendorId    String?
+  vendor      Vendor?   @relation(fields: [vendorId], references: [id])
+  invoiceId   String?
+  invoice     Invoice?  @relation(fields: [invoiceId], references: [id])
+
+  @@index([workspaceId, date])
+  @@index([workspaceId, categoryId])
+  @@index([workspaceId, vendorId])
+}
+
+// ---------------------------------------------------------------------------
+// Budgets, approvals & controls
+// ---------------------------------------------------------------------------
+
+model Budget {
+  id       String   @id @default(cuid())
+  month    DateTime // first day of the budget month
+  location String
+  amount   Float
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+
+  @@unique([workspaceId, categoryId, location, month])
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ApprovalRequest {
+  id            String         @id @default(cuid())
+  description   String
+  amount        Float
+  status        ApprovalStatus @default(PENDING)
+  requestedById String
+  approverId    String?
+  createdAt     DateTime       @default(now())
+  decidedAt     DateTime?
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// LLM oversight engine
+// ---------------------------------------------------------------------------
+
+enum InsightSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum InsightStatus {
+  OPEN
+  ACCEPTED
+  DISMISSED
+}
+
+model Insight {
+  id              String          @id @default(cuid())
+  type            String // price_creep, duplicate_invoice, off_contract, vendor_spike, subscription_waste, budget_overrun
+  title           String
+  summary         String
+  severity        InsightSeverity
+  estimatedImpact Float
+  evidence        Json // array of {model, id, note}
+  recommendation  String
+  status          InsightStatus   @default(OPEN)
+  generatedBy     String          @default("llm") // "llm" | "mock"
+  createdAt       DateTime        @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// NL query console
+// ---------------------------------------------------------------------------
+
+model QueryHistory {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  toolCalls Json // array of {tool, args, resultSummary}
+  pinned    Boolean  @default(false)
+  askedById String
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// Embeddable widget & public API
+// ---------------------------------------------------------------------------
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  label      String
+  keyHash    String    @unique
+  keyPrefix  String // first 8 chars shown in UI for identification
+  scopes     String[]  @default(["read"])
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}

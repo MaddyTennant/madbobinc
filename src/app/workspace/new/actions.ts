@@ -2,12 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { createSession, getSession } from "@/lib/auth";
+import { createSession, requireValidSession } from "@/lib/auth";
 import { defaultCategoryCreateInputs } from "@/lib/categorize";
 
 export async function createWorkspaceAction(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const session = await requireValidSession();
 
   const name = String(formData.get("name") || "").trim();
   const location = String(formData.get("location") || "").trim();
@@ -24,11 +23,11 @@ export async function createWorkspaceAction(formData: FormData): Promise<void> {
       location,
       currency: currency || "USD",
       fiscalMonthStart: Number.isFinite(fiscalMonthStart) ? fiscalMonthStart : 1,
-      memberships: { create: { userId: session!.userId, role: "OWNER" } },
+      memberships: { create: { userId: session.userId, role: "OWNER" } },
       categories: { create: defaultCategoryCreateInputs() },
     },
   });
 
-  await createSession({ ...session!, workspaceId: workspace.id, role: "OWNER" });
+  await createSession({ ...session, workspaceId: workspace.id, role: "OWNER" });
   redirect("/query");
 }

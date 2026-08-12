@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth";
+import { requireValidSession } from "@/lib/auth";
 import { Logo } from "@/components/Logo";
+import { logoutAction } from "../../(auth)/actions";
 import { createWorkspaceAction } from "./actions";
 
 export default async function NewWorkspacePage({
@@ -8,8 +8,7 @@ export default async function NewWorkspacePage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  await requireValidSession();
   const { error } = await searchParams;
 
   return (
@@ -31,7 +30,7 @@ export default async function NewWorkspacePage({
             <label className="label" htmlFor="name">
               Venue name
             </label>
-            <input className="input" id="name" name="name" required placeholder="Blue Anchor Bistro" />
+            <input className="input" id="name" name="name" required placeholder="Ruths" />
           </div>
           <div>
             <label className="label" htmlFor="location">
@@ -67,6 +66,12 @@ export default async function NewWorkspacePage({
           </div>
           <button className="btn-primary w-full" type="submit">
             Create workspace
+          </button>
+        </form>
+
+        <form action={logoutAction} className="mt-4 text-center">
+          <button className="text-xs font-medium text-stone-400 hover:text-stone-600" type="submit">
+            Not you? Log out
           </button>
         </form>
       </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSession } from "@/lib/auth";
+import { requireValidSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { Logo } from "@/components/Logo";
 import { logoutAction } from "../(auth)/actions";
@@ -17,8 +17,7 @@ const SECONDARY_NAV = [
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const session = await requireValidSession();
   if (!session.workspaceId) redirect("/workspace/new");
 
   const workspace = await db.workspace.findUnique({ where: { id: session.workspaceId } });

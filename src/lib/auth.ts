@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import type { Role } from "@prisma/client";
+import { db } from "@/lib/db";
 
 const SESSION_COOKIE = "madbob_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
@@ -91,6 +92,30 @@ export async function requireSession(): Promise<SessionPayload> {
   const session = await getSession();
   if (!session) redirect("/login");
   return session;
+}
+
+/**
+ * Like requireSession(), but also verifies the session's user still exists in
+ * the database. A valid-looking session cookie can outlive its user (e.g. the
+ * database was reset, or the account was deleted) — without this check, code
+ * that trusts session.userId (like creating a workspace) fails with a raw
+ * foreign-key error instead of sending the visitor back to log in.
+ *
+ * Deliberately does not clear the cookie here: Next.js only allows mutating
+ * cookies from a Server Action or Route Handler, and this helper is also
+ * called from plain page Server Components. The stale cookie is harmless —
+ * every check here will just keep redirecting to /login until the next
+ * successful login overwrites it.
+ */
+export async function requireValidSession(): Promise<SessionPayload> {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
+  const user = await db.user.findUnique({ where: { id: session!.userId } });
+  if (!user) {
+    redirect(`/login?error=${encodeURIComponent("Your session has expired. Please log in again.")}`);
+  }
+  return session!;
 }
 
 export interface InvitePayload {

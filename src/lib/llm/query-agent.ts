@@ -15,6 +15,11 @@ export interface QueryResult {
   mode: "llm" | "mock";
 }
 
+export interface ConversationTurn {
+  question: string;
+  answer: string;
+}
+
 const MAX_TOOL_ROUNDS = 5;
 
 function summarizeResult(result: unknown): string {
@@ -36,14 +41,21 @@ function getClient(): Anthropic {
   return anthropicClient;
 }
 
-async function runLlmQuery(workspaceId: string, question: string): Promise<QueryResult> {
+async function runLlmQuery(workspaceId: string, question: string, priorTurns: ConversationTurn[]): Promise<QueryResult> {
   const tools: Anthropic.Tool[] = QUERY_TOOLS.map((t) => ({
     name: t.name,
     description: t.description,
     input_schema: t.jsonSchema as Anthropic.Tool.InputSchema,
   }));
 
-  const messages: Anthropic.MessageParam[] = [{ role: "user", content: question }];
+  // Prior turns are replayed as plain question/answer text, not the original
+  // tool-call transcript — enough for the model to resolve follow-ups like
+  // "why is that?" without re-sending every past tool result.
+  const messages: Anthropic.MessageParam[] = priorTurns.flatMap((t) => [
+    { role: "user" as const, content: t.question },
+    { role: "assistant" as const, content: t.answer },
+  ]);
+  messages.push({ role: "user", content: question });
   const toolCalls: ToolCallLog[] = [];
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
@@ -112,6 +124,10 @@ async function runMockQuery(workspaceId: string, question: string): Promise<Quer
   return { answer, toolCalls, mode: "mock" };
 }
 
-export async function answerQuery(workspaceId: string, question: string): Promise<QueryResult> {
-  return isLlmConfigured() ? runLlmQuery(workspaceId, question) : runMockQuery(workspaceId, question);
+export async function answerQuery(
+  workspaceId: string,
+  question: string,
+  priorTurns: ConversationTurn[] = [],
+): Promise<QueryResult> {
+  return isLlmConfigured() ? runLlmQuery(workspaceId, question, priorTurns) : runMockQuery(workspaceId, question);
 }

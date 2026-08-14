@@ -31,6 +31,7 @@ model Workspace {
   budgets          Budget[]
   approvalRequests ApprovalRequest[]
   insights         Insight[]
+  conversations    Conversation[]
   queryHistory     QueryHistory[]
   apiKeys          ApiKey[]
 }
@@ -306,6 +307,18 @@ model Insight {
 // NL query console
 // ---------------------------------------------------------------------------
 
+model Conversation {
+  id        String   @id @default(cuid())
+  title     String? // set from the first question once one is asked; null for an empty just-started chat
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  turns QueryHistory[]
+}
+
 model QueryHistory {
   id        String   @id @default(cuid())
   question  String
@@ -315,8 +328,10 @@ model QueryHistory {
   askedById String
   createdAt DateTime @default(now())
 
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId    String
+  workspace      Workspace    @relation(fields: [workspaceId], references: [id])
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
 }
 
 // ---------------------------------------------------------------------------

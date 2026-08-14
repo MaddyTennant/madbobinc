@@ -30,7 +30,7 @@ export default async function NewWorkspacePage({
             <label className="label" htmlFor="name">
               Venue name
             </label>
-            <input className="input" id="name" name="name" required placeholder="Ruths" />
+            <input className="input" id="name" name="name" required placeholder="The Green Fork" />
           </div>
           <div>
             <label className="label" htmlFor="location">

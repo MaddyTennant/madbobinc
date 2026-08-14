@@ -23,15 +23,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const workspace = await db.workspace.findUnique({ where: { id: session.workspaceId } });
   if (!workspace) redirect("/workspace/new");
 
-  const recentQuestions = await db.queryHistory.findMany({
+  const recentConversations = await db.conversation.findMany({
     where: { workspaceId: session.workspaceId },
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
     take: 6,
-    select: { id: true, question: true },
+    select: { id: true, title: true },
   });
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <aside className="flex w-72 flex-shrink-0 flex-col bg-paper-200/60 px-3 py-4">
         <Link href="/query" className="mb-6 flex items-center gap-2 px-2">
           <Logo />
@@ -48,18 +48,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <span aria-hidden>✦</span> Ask AI
         </Link>
 
-        {recentQuestions.length > 0 ? (
+        {recentConversations.length > 0 ? (
           <div className="mb-4 min-h-0 flex-1 overflow-y-auto">
             <p className="px-2 pb-1 text-xs font-medium uppercase tracking-wide text-stone-400">Recent</p>
             <div className="space-y-0.5">
-              {recentQuestions.map((q) => (
+              {recentConversations.map((c) => (
                 <Link
-                  key={q.id}
-                  href="/query"
+                  key={c.id}
+                  href={`/query/${c.id}`}
                   className="block truncate rounded-lg px-2 py-1.5 text-sm text-stone-600 hover:bg-white/70"
-                  title={q.question}
+                  title={c.title ?? undefined}
                 >
-                  {q.question}
+                  {c.title}
                 </Link>
               ))}
             </div>

@@ -22,6 +22,12 @@ export const CATEGORY_COLOR_MAP: Record<string, string> = {
   marketing: CATEGORICAL_PALETTE[5],
   repairs: CATEGORICAL_PALETTE[6],
   delivery_fees: CATEGORICAL_PALETTE[7],
+  // Tech-vertical-only keys. Safe to reuse Hospitality-only slots above (0/1/3/6) —
+  // a workspace only ever has one vertical's categories, so these never co-occur.
+  cloud_infra: CATEGORICAL_PALETTE[0],
+  observability: CATEGORICAL_PALETTE[1],
+  cdn_edge: CATEGORICAL_PALETTE[3],
+  saas_software: CATEGORICAL_PALETTE[6],
 };
 export const OTHER_CATEGORY_COLOR = "#898781"; // muted ink — for "software", "other", and any overflow bucket
 

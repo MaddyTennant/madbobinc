@@ -14,7 +14,7 @@ export default async function LoginPage({
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center gap-2">
           <Logo />
-          <h1 className="text-xl font-semibold text-stone-900">Madbob Spend</h1>
+          <h1 className="text-xl font-normal tracking-tight text-stone-700">Madbob Spend</h1>
         </div>
 
         <form action={loginAction} className="card space-y-4">

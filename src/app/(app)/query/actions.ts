@@ -86,3 +86,20 @@ export async function togglePinAction(formData: FormData): Promise<void> {
   if (entry) await db.queryHistory.update({ where: { id }, data: { pinned: !entry.pinned } });
   revalidatePath("/query", "layout");
 }
+
+export async function deleteConversationAction(formData: FormData): Promise<void> {
+  const session = await requireAction("query:use");
+  const id = String(formData.get("id") || "");
+  const currentPath = String(formData.get("currentPath") || "");
+
+  const conversation = await db.conversation.findFirst({ where: { id, workspaceId: session.workspaceId } });
+  if (conversation) {
+    await db.$transaction([
+      db.queryHistory.deleteMany({ where: { conversationId: id } }),
+      db.conversation.delete({ where: { id } }),
+    ]);
+  }
+
+  revalidatePath("/query", "layout");
+  if (currentPath === `/query/${id}`) redirect("/query");
+}

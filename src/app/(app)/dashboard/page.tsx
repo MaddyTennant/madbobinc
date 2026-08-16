@@ -13,9 +13,9 @@ export default async function DashboardPage() {
   const spendDelta = formatDelta(summary.totalSpendMTD, summary.totalSpendSamePointLastMonth);
 
   return (
-    <div className="max-w-6xl space-y-8 p-8">
+    <div className="mx-auto max-w-6xl space-y-8 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-stone-900">Spend analyst dashboard</h1>
+        <h1 className="text-xl font-normal tracking-tight text-stone-700">Spend analyst dashboard</h1>
         <p className="text-sm text-stone-500">{summary.periodLabel} — month to date, all figures in {summary.currency}.</p>
       </div>
 
@@ -28,14 +28,14 @@ export default async function DashboardPage() {
         />
         <StatTile label="Revenue (MTD)" value={formatCurrency(summary.revenueMTD, summary.currency)} />
         <StatTile
-          label="Food cost %"
-          value={formatPercent(summary.foodCostPct)}
-          sublabel="Food + beverage / revenue, trailing 30 days"
+          label={summary.primaryRatio.label}
+          value={formatPercent(summary.primaryRatio.value)}
+          sublabel={summary.primaryRatio.sublabel}
         />
         <StatTile
-          label="Prime cost %"
-          value={formatPercent(summary.primeCostPct)}
-          sublabel="Food + beverage + labor / revenue, trailing 30 days"
+          label={summary.secondaryRatio.label}
+          value={formatPercent(summary.secondaryRatio.value)}
+          sublabel={summary.secondaryRatio.sublabel}
         />
         <StatTile
           label="30-day cash-out forecast"

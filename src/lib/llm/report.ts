@@ -16,9 +16,9 @@ function mockNarrative(summary: DashboardSummary): string {
   const topCategory = summary.byCategory[0];
   const topVendor = summary.byVendor[0];
   return [
-    `${summary.periodLabel} spend summary for your restaurant.`,
+    `${summary.periodLabel} spend summary.`,
     `Total spend month-to-date is ${formatCurrency(summary.totalSpendMTD, summary.currency)}, against ${formatCurrency(summary.revenueMTD, summary.currency)} in revenue so far.`,
-    `Food cost is running at ${formatPercent(summary.foodCostPct)} and prime cost at ${formatPercent(summary.primeCostPct)} (trailing 30 days).`,
+    `${summary.primaryRatio.label} is running at ${formatPercent(summary.primaryRatio.value)} and ${summary.secondaryRatio.label} at ${formatPercent(summary.secondaryRatio.value)} (trailing 30 days).`,
     topCategory ? `The largest spend category is ${topCategory.label} at ${formatCurrency(topCategory.amount, summary.currency)}.` : "",
     topVendor ? `The largest vendor by spend is ${topVendor.name} at ${formatCurrency(topVendor.amount, summary.currency)}.` : "",
     `At the current daily burn rate of ${formatCurrency(summary.dailyBurnRate, summary.currency)}/day, projected 30-day cash-out is ${formatCurrency(summary.cashOutForecast30d, summary.currency)}.`,

@@ -11,6 +11,12 @@ datasource db {
 // Tenancy
 // ---------------------------------------------------------------------------
 
+enum Vertical {
+  HOSPITALITY
+  HEALTHCARE
+  TECH
+}
+
 model Workspace {
   id                String   @id @default(cuid())
   name              String
@@ -18,6 +24,10 @@ model Workspace {
   currency          String   @default("USD")
   fiscalMonthStart  Int      @default(1) // day of month, 1-28
   approvalThreshold Float    @default(500) // purchase requests above this amount require approval
+  // Set once at onboarding. Filters which connectors show up on the Integrations page — see
+  // VERTICAL_CONNECTOR_TYPES in src/lib/connectors.ts. Healthcare is still an unbuilt
+  // placeholder and shares Hospitality's catalog; Tech is gated behind ENABLE_TECH_VERTICAL.
+  vertical          Vertical @default(HOSPITALITY)
   createdAt         DateTime @default(now())
 
   memberships      Membership[]
@@ -30,10 +40,31 @@ model Workspace {
   categories       Category[]
   budgets          Budget[]
   approvalRequests ApprovalRequest[]
+  renewals         Renewal[]
   insights         Insight[]
   conversations    Conversation[]
   queryHistory     QueryHistory[]
   apiKeys          ApiKey[]
+  sites            Site[]
+}
+
+// A physical location within a workspace (e.g. "Ruth's Downtown", "Ruth's Uptown").
+// Every workspace has exactly one `isDefault` site, created automatically alongside the
+// workspace so existing single-location workspaces keep working unchanged. Spend data
+// (Transaction, Vendor, Connector, etc.) is not yet scoped per-site — additional sites
+// beyond the default are placeholders with no connectors or data of their own until that
+// migration happens.
+model Site {
+  id        String   @id @default(cuid())
+  name      String
+  location  String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  @@unique([workspaceId, name])
 }
 
 enum Role {
@@ -77,6 +108,9 @@ enum ConnectorType {
   BANK
   PAYROLL
   DELIVERY
+  OBSERVABILITY
+  CDN
+  CLOUD
 }
 
 enum ConnectorStatus {
@@ -264,6 +298,33 @@ model ApprovalRequest {
   approverId    String?
   createdAt     DateTime       @default(now())
   decidedAt     DateTime?
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+}
+
+enum RenewalType {
+  INSURANCE
+  LICENSE
+  SUBSCRIPTION
+}
+
+enum RenewalStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model Renewal {
+  id            String        @id @default(cuid())
+  name          String
+  description   String?
+  type          RenewalType
+  amount        Float
+  renewalDate   DateTime
+  cadenceMonths Int? // null = one-off, otherwise renewalDate advances by this many months when renewed
+  status        RenewalStatus @default(ACTIVE)
+  renewedAt     DateTime?
+  createdAt     DateTime      @default(now())
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id])

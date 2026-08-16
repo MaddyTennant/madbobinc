@@ -29,10 +29,10 @@ export default async function InsightsPage() {
   });
 
   return (
-    <div className="max-w-4xl space-y-6 p-8">
+    <div className="mx-auto max-w-4xl space-y-6 p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-stone-900">Insights &amp; Alerts</h1>
+          <h1 className="text-xl font-normal tracking-tight text-stone-700">Insights &amp; Alerts</h1>
           <p className="text-sm text-stone-500">
             An LLM reviews your connected spend data for price creep, duplicate invoices, vendor spikes,
             subscription waste, and budget overruns.
@@ -100,7 +100,7 @@ export default async function InsightsPage() {
                   </form>
                   <form action={dismissInsightAction}>
                     <input type="hidden" name="id" value={insight.id} />
-                    <button className="text-xs font-medium text-stone-400 hover:underline" type="submit">
+                    <button className="btn-secondary text-xs" type="submit">
                       Dismiss
                     </button>
                   </form>

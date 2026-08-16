@@ -52,14 +52,20 @@ export interface BudgetComparison {
   actual: number;
 }
 
+export interface RatioTile {
+  label: string;
+  sublabel: string;
+  value: number | null;
+}
+
 export interface DashboardSummary {
   currency: string;
   periodLabel: string;
   totalSpendMTD: number;
   totalSpendSamePointLastMonth: number;
   revenueMTD: number;
-  foodCostPct: number | null;
-  primeCostPct: number | null;
+  primaryRatio: RatioTile;
+  secondaryRatio: RatioTile;
   byCategory: CategorySlice[];
   byVendor: VendorSlice[];
   monthlyTrend: TrendPoint[];
@@ -116,27 +122,54 @@ export async function getDashboardSummary(workspaceId: string): Promise<Dashboar
   });
   const categoryById = new Map(categories.map((c) => [c.id, c]));
 
-  // Food cost % and prime cost % use a trailing 30-day window rather than
-  // calendar month-to-date: lumpy monthly costs (rent, payroll, subscriptions)
-  // tend to land early in the month while revenue accrues daily, which would
-  // otherwise make these ratios look artificially inflated for most of the month.
-  const trailing30Revenue = trailing30RevenueAgg._sum.amount ?? 0;
-  const foodBevAmount = sum(
-    trailing30CategoryTotals
-      .filter((t) => {
-        const c = t.categoryId ? categoryById.get(t.categoryId) : null;
-        return c?.key === "food_cost" || c?.key === "beverage";
-      })
-      .map((t) => t._sum.amount ?? 0),
-  );
-  const laborAmount = sum(
-    trailing30CategoryTotals
-      .filter((t) => (t.categoryId ? categoryById.get(t.categoryId)?.key : null) === "labor")
-      .map((t) => t._sum.amount ?? 0),
-  );
+  // These two ratio tiles use a trailing 30-day window rather than calendar
+  // month-to-date: lumpy monthly costs (rent, payroll, subscriptions) tend to
+  // land early in the month, which would otherwise make the ratios look
+  // artificially inflated for most of the month.
+  const amountForKeys = (keys: string[]) =>
+    sum(
+      trailing30CategoryTotals
+        .filter((t) => {
+          const key = t.categoryId ? categoryById.get(t.categoryId)?.key : null;
+          return key != null && keys.includes(key);
+        })
+        .map((t) => t._sum.amount ?? 0),
+    );
 
-  const foodCostPct = trailing30Revenue > 0 ? foodBevAmount / trailing30Revenue : null;
-  const primeCostPct = trailing30Revenue > 0 ? (foodBevAmount + laborAmount) / trailing30Revenue : null;
+  let primaryRatio: RatioTile;
+  let secondaryRatio: RatioTile;
+
+  if (workspace.vertical === "TECH") {
+    // Tech workspaces have no revenue connector (no POS equivalent), so revenue
+    // is always $0 — these ratios are relative to total spend instead.
+    const trailing30TotalExpense = sum(trailing30CategoryTotals.map((t) => t._sum.amount ?? 0));
+    const infraAmount = amountForKeys(["cloud_infra", "observability", "cdn_edge"]);
+    const saasAmount = amountForKeys(["saas_software"]);
+    primaryRatio = {
+      label: "Infra spend %",
+      sublabel: "Cloud + observability + CDN / total spend, trailing 30 days",
+      value: trailing30TotalExpense > 0 ? infraAmount / trailing30TotalExpense : null,
+    };
+    secondaryRatio = {
+      label: "SaaS spend %",
+      sublabel: "Software & subscriptions / total spend, trailing 30 days",
+      value: trailing30TotalExpense > 0 ? saasAmount / trailing30TotalExpense : null,
+    };
+  } else {
+    const trailing30Revenue = trailing30RevenueAgg._sum.amount ?? 0;
+    const foodBevAmount = amountForKeys(["food_cost", "beverage"]);
+    const laborAmount = amountForKeys(["labor"]);
+    primaryRatio = {
+      label: "Food cost %",
+      sublabel: "Food + beverage / revenue, trailing 30 days",
+      value: trailing30Revenue > 0 ? foodBevAmount / trailing30Revenue : null,
+    };
+    secondaryRatio = {
+      label: "Prime cost %",
+      sublabel: "Food + beverage + labor / revenue, trailing 30 days",
+      value: trailing30Revenue > 0 ? (foodBevAmount + laborAmount) / trailing30Revenue : null,
+    };
+  }
 
   const rankedCategories = categoryTotals
     .map((t) => {
@@ -216,8 +249,8 @@ export async function getDashboardSummary(workspaceId: string): Promise<Dashboar
     totalSpendMTD,
     totalSpendSamePointLastMonth,
     revenueMTD,
-    foodCostPct,
-    primeCostPct,
+    primaryRatio,
+    secondaryRatio,
     byCategory,
     byVendor,
     monthlyTrend,

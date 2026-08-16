@@ -25,14 +25,14 @@ export default async function EmbedPage({ params }: { params: Promise<{ token: s
     <div className="min-h-screen space-y-6 bg-stone-50 p-6">
       <div>
         <p className="text-xs font-medium uppercase tracking-wide text-stone-400">{workspace.name}</p>
-        <h1 className="text-lg font-semibold text-stone-900">Spend overview — {summary.periodLabel}</h1>
+        <h1 className="text-lg font-normal tracking-tight text-stone-700">Spend overview — {summary.periodLabel}</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatTile label="Total spend (MTD)" value={formatCurrency(summary.totalSpendMTD, summary.currency)} />
         <StatTile label="Revenue (MTD)" value={formatCurrency(summary.revenueMTD, summary.currency)} />
-        <StatTile label="Food cost %" value={formatPercent(summary.foodCostPct)} />
-        <StatTile label="Prime cost %" value={formatPercent(summary.primeCostPct)} />
+        <StatTile label={summary.primaryRatio.label} value={formatPercent(summary.primaryRatio.value)} />
+        <StatTile label={summary.secondaryRatio.label} value={formatPercent(summary.secondaryRatio.value)} />
       </div>
 
       <div className="card">

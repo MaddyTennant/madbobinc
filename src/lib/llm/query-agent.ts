@@ -1,5 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import type { Vertical } from "@prisma/client";
+import { db } from "@/lib/db";
 import { isLlmConfigured, QUERY_MODEL } from "@/lib/llm/client";
 import { QUERY_TOOLS } from "@/lib/llm/query-tools";
 
@@ -27,7 +29,7 @@ function summarizeResult(result: unknown): string {
   return json.length > 300 ? `${json.slice(0, 300)}…` : json;
 }
 
-const SYSTEM_PROMPT = `You are a restaurant spend analyst assistant. Staff ask you questions about their
+const HOSPITALITY_SYSTEM_PROMPT = `You are a restaurant spend analyst assistant. Staff ask you questions about their
 restaurant's spend in plain English. You can only see data by calling the tools provided — you have no
 other knowledge of this restaurant's finances, and you must never guess or fabricate numbers.
 
@@ -35,13 +37,36 @@ Always call at least one tool before answering a data question. Cite concrete fi
 in your answer. If a question is ambiguous about a time period, default to the trailing 90 days and say
 so. Keep answers concise: a short direct answer, then supporting numbers.`;
 
+const TECH_SYSTEM_PROMPT = `You are a technology company spend analyst assistant. Staff ask you questions about their
+company's cloud, infrastructure, and software spend in plain English. You can only see data by calling
+the tools provided — you have no other knowledge of this company's finances, and you must never guess
+or fabricate numbers.
+
+Always call at least one tool before answering a data question. Cite concrete figures from tool results
+in your answer. If a question is ambiguous about a time period, default to the trailing 90 days and say
+so. Keep answers concise: a short direct answer, then supporting numbers.`;
+
+function systemPromptFor(vertical: Vertical): string {
+  return vertical === "TECH" ? TECH_SYSTEM_PROMPT : HOSPITALITY_SYSTEM_PROMPT;
+}
+
 let anthropicClient: Anthropic | null = null;
 function getClient(): Anthropic {
   if (!anthropicClient) anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   return anthropicClient;
 }
 
+/** The installed SDK (0.32) predates typed `output_config`/`thinking` support, but the
+ * API accepts them regardless — this widens the param type just enough to pass them through.
+ * Thinking is disabled here: picking a tool from a small fixed set and summarizing its
+ * result doesn't need deep reasoning, and thinking was adding multiple seconds of latency. */
+type WithEffort<T> = T & {
+  output_config?: { effort: "low" | "medium" | "high" | "xhigh" | "max" };
+  thinking?: { type: "disabled" };
+};
+
 async function runLlmQuery(workspaceId: string, question: string, priorTurns: ConversationTurn[]): Promise<QueryResult> {
+  const workspace = await db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { vertical: true } });
   const tools: Anthropic.Tool[] = QUERY_TOOLS.map((t) => ({
     name: t.name,
     description: t.description,
@@ -62,10 +87,12 @@ async function runLlmQuery(workspaceId: string, question: string, priorTurns: Co
     const response = await getClient().messages.create({
       model: QUERY_MODEL,
       max_tokens: 1536,
-      system: SYSTEM_PROMPT,
+      system: systemPromptFor(workspace.vertical),
       messages,
       tools,
-    });
+      output_config: { effort: "medium" },
+      thinking: { type: "disabled" },
+    } as WithEffort<Anthropic.MessageCreateParamsNonStreaming>);
 
     const toolUseBlocks = response.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use");
     if (toolUseBlocks.length === 0) {
@@ -129,5 +156,11 @@ export async function answerQuery(
   question: string,
   priorTurns: ConversationTurn[] = [],
 ): Promise<QueryResult> {
-  return isLlmConfigured() ? runLlmQuery(workspaceId, question, priorTurns) : runMockQuery(workspaceId, question);
+  if (!isLlmConfigured()) return runMockQuery(workspaceId, question);
+
+  try {
+    return await runLlmQuery(workspaceId, question, priorTurns);
+  } catch {
+    return runMockQuery(workspaceId, question);
+  }
 }

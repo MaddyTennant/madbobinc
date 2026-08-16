@@ -1,0 +1,183 @@
+<mxfile host="app.diagrams.net" agent="Claude Code" version="24.7.17">
+  <diagram name="UI Flow — Chat Routing (Live vs Historical, Multi-Site, Vertical-Filtered)" id="ui-chat-routing">
+    <mxGraphModel dx="1600" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1570" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Onboarding (multi-site + Vertical) → Connect Integrations (filtered by Vertical, scoped per Site) → Chat Routing (Live MCP vs. Historical/Stored Data)" style="text;html=1;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="15" width="1520" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION 1: Onboarding -->
+        <mxCell id="sec1" value="1 · Onboarding — Workspace : Site = 1 : N; Vertical is set once, at the Workspace level" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="55" width="1540" height="285" as="geometry" />
+        </mxCell>
+
+        <!-- Row A: account-level -->
+        <mxCell id="n_login" value="Sign up / Log in" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#888888;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="95" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_workspace" value="Create Workspace&#10;(company / account name)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#888888;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="95" width="230" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_vertical" value="Select Vertical — &quot;Hospitality&quot; ▾&#10;(Healthcare, Tech, ... also available)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="95" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_login_ws" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_login" target="n_workspace"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_ws_vertical" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_workspace" target="n_vertical"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Row B: site-level -->
+        <mxCell id="n_site1" value="Add Site #1 — &quot;Ruth's Downtown&quot;&#10;(name + location + currency)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#888888;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="185" width="250" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_chat_redirect" value="Redirected to /query (chat)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#888888;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="570" y="185" width="230" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_integrations" value="Open Integrations page" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#888888;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="900" y="185" width="230" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_site1_chat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_site1" target="n_chat_redirect"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_chat_int" value="manual nav, later" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;fontSize=9;" edge="1" parent="1" source="n_chat_redirect" target="n_integrations"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Row A -> Row B, routed through the empty gap between the rows so it never crosses either box -->
+        <mxCell id="e_vertical_site1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="n_vertical" target="n_site1">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="700" y="170" /><mxPoint x="395" y="170" /></Array></mxGeometry>
+        </mxCell>
+
+        <mxCell id="n_addmore" value="+ Add another site (repeat anytime — e.g. &quot;Ruth's Uptown&quot;)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="250" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_site1_addmore" value="repeatable" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;fontSize=9;startArrow=block;endArrow=block;startFill=1;" edge="1" parent="1" source="n_site1" target="n_addmore"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_existing_note" value="An existing user whose site is already set up lands directly on /query (chat), skipping this whole row. Vertical and Sites are workspace-level settings edited later from Settings, not just at signup." style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=middle;fontColor=#666666;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="270" y="298" width="1000" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION 2: Connect Integrations -->
+        <mxCell id="sec2" value="2 · Connect Integrations — connector list filtered by Vertical, each connector scoped to a Site" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="350" width="1540" height="450" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_site_context" value="Site context: &quot;Ruth's Downtown&quot; ▾&#10;(chosen via a site switcher)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="730" y="385" width="380" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_int_sitectx" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="n_integrations" target="n_site_context"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_vertical_note" value="Connector catalog below is filtered by this workspace's Vertical (set during onboarding) — e.g. Hospitality shows SevenRooms / Choco / POS; Healthcare or Tech would show a different connector set entirely." style="text;html=1;fontSize=10;fontStyle=2;align=center;verticalAlign=top;fontColor=#666666;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="730" y="440" width="380" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_sr_connector" value="Add Connector: SevenRooms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="505" width="460" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_choco_connector" value="Add Connector: Choco" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="505" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sitectx_sr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_site_context" target="n_sr_connector"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_sitectx_choco" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_site_context" target="n_choco_connector"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_sr_rest" value="Connect via REST API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="135" y="585" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="n_sr_mcp_setup" value="Connect via MCP Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="610" y="585" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="n_vault_choco" value="Vault: Choco API credential" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="585" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e_src_rest" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_sr_connector" target="n_sr_rest"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_src_mcp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_sr_connector" target="n_sr_mcp_setup"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_choco_vault" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_choco_connector" target="n_vault_choco"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_sync_job" value="Scheduled Sync Job" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="135" y="655" width="280" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_vault_sr" value="Vault: SevenRooms OAuth credential" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="610" y="655" width="250" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rest_sync" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_sr_rest" target="n_sync_job"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_mcpsetup_vault" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_sr_mcp_setup" target="n_vault_sr"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_db" value="Postgres — Transactions / Vendors&#10;(siteId + workspaceId on each row)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="725" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_sr_mcp" value="SevenRooms MCP Server (live)&#10;— this site's account" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="610" y="725" width="250" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_choco_mcp" value="Choco MCP Server (live)&#10;— this site's account" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="725" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sync_db" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_sync_job" target="n_db"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_vault_srmcp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_vault_sr" target="n_sr_mcp"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_vault_chocomcp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_vault_choco" target="n_choco_mcp"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- SECTION 3: Chat -->
+        <mxCell id="sec3" value="3 · Ask Claude — Chat (once connected)" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="810" width="1540" height="725" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_chat_open" value="User opens /query chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#888888;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="615" y="845" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_site_select" value="Select active site — &quot;Ruth's Downtown&quot;&#10;(or &quot;All Sites&quot; rollup)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="615" y="920" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_claude_decide" value="Claude reads the question + full tool list&#10;(picks by tool description; calls carry the active siteId)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="555" y="995" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_chatopen_siteselect" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_chat_open" target="n_site_select"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_siteselect_decide" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_site_select" target="n_claude_decide"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_availability_note" value="SevenRooms MCP, Choco MCP, and the local DB / forecast tool set up in section 2 are all available here as tools — Claude picks between them based on the question's wording, not a fixed routing rule." style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=top;fontColor=#666666;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="970" y="995" width="440" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_q_forecast" value="&quot;Forecasted profit for tonight&#10;— going off stored data&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;dashed=1;fontStyle=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="135" y="1095" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_q1" value="&quot;How many people are booked&#10;for tonight?&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;dashed=1;fontStyle=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="595" y="1095" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_q2" value="&quot;Do we have enough steak&#10;to handle this?&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;dashed=1;fontStyle=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="1095" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_decide_qf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_claude_decide" target="n_q_forecast"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_decide_q1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_claude_decide" target="n_q1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_decide_q2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_claude_decide" target="n_q2"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Q1 -> SevenRooms MCP: through the empty corridor at x=485, clear of col1 (ends x=415) and the hub column (starts x=555) -->
+        <mxCell id="e_q1_srmcp" value="live tool call, siteId=Downtown" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D79B00;fontSize=9;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="n_q1" target="n_sr_mcp">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="485" y="1122" /><mxPoint x="485" y="752" /></Array></mxGeometry>
+        </mxCell>
+        <!-- Q2 -> Choco MCP: same column, straight vertical, nothing in between -->
+        <mxCell id="e_q2_chocomcp" value="live tool call, siteId=Downtown" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D79B00;fontSize=9;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="n_q2" target="n_choco_mcp"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="n_forecast_tool" value="get_forecasted_profit&#10;(new local tool — queries stored Transactions,&#10;filtered by siteId or workspace-wide if &quot;All Sites&quot;)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="135" y="1190" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e_qf_forecasttool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_q_forecast" target="n_forecast_tool"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- forecast tool -> DB: through the far-left margin corridor at x=90 -->
+        <mxCell id="e_forecast_db" value="reads historical data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#82B366;fontSize=9;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="n_forecast_tool" target="n_db">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="90" y="1225" /><mxPoint x="90" y="752" /></Array></mxGeometry>
+        </mxCell>
+
+        <mxCell id="n_note" value="Forecast method: average revenue &amp; cost for the same weekday over the trailing N occurrences (e.g. the last 8 Fridays) from stored Transactions for the active site, projected forward — the same &quot;trailing average → project forward&quot; approach already used for the 30-day cash-out forecast in aggregate.ts. Purely historical — no live call involved. If &quot;All Sites&quot; is selected, the same query aggregates across every site's Transactions instead of filtering to one siteId." style="text;html=1;fontSize=10;fontStyle=2;align=left;verticalAlign=top;fontColor=#666666;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="135" y="1280" width="280" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_answer" value="Answer streamed back to user in chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#666666;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="575" y="1440" width="320" height="55" as="geometry" />
+        </mxCell>
+        <!-- forecast_tool -> Answer: reuses the x=485 corridor at a lower, non-overlapping y-range -->
+        <mxCell id="e_forecasttool_answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="n_forecast_tool" target="n_answer">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="485" y="1225" /><mxPoint x="485" y="1467" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="e_q1_answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_q1" target="n_answer"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e_q2_answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="n_q2" target="n_answer"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

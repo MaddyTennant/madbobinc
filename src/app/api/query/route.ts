@@ -13,9 +13,13 @@ export async function POST(req: NextRequest) {
     const { question } = schema.parse(await req.json());
 
     const result = await answerQuery(session.workspaceId, question);
+    const conversation = await db.conversation.create({
+      data: { workspaceId: session.workspaceId, title: question.length > 80 ? `${question.slice(0, 80)}…` : question },
+    });
     const saved = await db.queryHistory.create({
       data: {
         workspaceId: session.workspaceId,
+        conversationId: conversation.id,
         question,
         answer: result.answer,
         toolCalls: JSON.parse(JSON.stringify(result.toolCalls)),

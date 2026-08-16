@@ -71,7 +71,9 @@ export async function GET() {
     const s = report.summary;
     drawParagraph(`Total spend (MTD): ${formatCurrency(s.totalSpendMTD, s.currency)}`);
     drawParagraph(`Revenue (MTD): ${formatCurrency(s.revenueMTD, s.currency)}`);
-    drawParagraph(`Food cost %: ${formatPercent(s.foodCostPct)}   Prime cost %: ${formatPercent(s.primeCostPct)}`);
+    drawParagraph(
+      `${s.primaryRatio.label}: ${formatPercent(s.primaryRatio.value)}   ${s.secondaryRatio.label}: ${formatPercent(s.secondaryRatio.value)}`,
+    );
     drawParagraph(`30-day cash-out forecast: ${formatCurrency(s.cashOutForecast30d, s.currency)}`);
     y -= 6;
 

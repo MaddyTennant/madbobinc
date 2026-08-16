@@ -62,7 +62,7 @@ async function main() {
       location: "Amsterdam, NL",
       currency: "EUR",
       fiscalMonthStart: 1,
-      categories: { create: defaultCategoryCreateInputs() },
+      categories: { create: defaultCategoryCreateInputs("HOSPITALITY") },
     },
   });
 
@@ -115,7 +115,7 @@ async function main() {
           workspaceId: workspace.id,
           name: v.name,
           paymentTerms: v.paymentTerms,
-          defaultCategoryKey: categorizeByText(v.categoryHint).categoryKey,
+          defaultCategoryKey: categorizeByText(v.categoryHint, "HOSPITALITY").categoryKey,
         },
       }),
     ),
@@ -165,7 +165,7 @@ async function main() {
     for (let vi = 0; vi < vendors.length; vi++) {
       const vendor = vendors[vi];
       const spec = VENDORS[vi];
-      const cat = categoryByKey.get(spec.categoryHint ? categorizeByText(spec.categoryHint).categoryKey : "other")!;
+      const cat = categoryByKey.get(spec.categoryHint ? categorizeByText(spec.categoryHint, "HOSPITALITY").categoryKey : "other")!;
 
       const drift = Math.pow(1 + spec.monthlyDriftPct, MONTHS_BACK - 1 - m);
       const swing = 1 + rand(-spec.volatility, spec.volatility);
@@ -205,7 +205,7 @@ async function main() {
         },
       });
 
-      const { categoryKey, confidence } = categorizeByText(spec.categoryHint);
+      const { categoryKey, confidence } = categorizeByText(spec.categoryHint, "HOSPITALITY");
       await db.transaction.create({
         data: {
           workspaceId: workspace.id,

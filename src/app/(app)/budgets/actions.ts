@@ -72,3 +72,62 @@ export async function decideApprovalAction(formData: FormData): Promise<void> {
   });
   revalidatePath("/budgets");
 }
+
+const RENEWAL_TYPES = ["INSURANCE", "LICENSE", "SUBSCRIPTION"] as const;
+
+export async function createRenewalAction(formData: FormData): Promise<void> {
+  const session = await requireAction("budgets:manage");
+  const name = String(formData.get("name") || "").trim();
+  const description = String(formData.get("description") || "").trim();
+  const type = String(formData.get("type") || "");
+  const amount = Number(formData.get("amount"));
+  const renewalDate = new Date(String(formData.get("renewalDate") || ""));
+  const cadenceMonths = Number(formData.get("cadenceMonths"));
+  if (!name || !RENEWAL_TYPES.includes(type as (typeof RENEWAL_TYPES)[number]) || !Number.isFinite(amount) || amount < 0 || Number.isNaN(renewalDate.getTime())) {
+    redirect("/budgets");
+  }
+
+  await db.renewal.create({
+    data: {
+      workspaceId: session.workspaceId,
+      name,
+      description: description || null,
+      type: type as (typeof RENEWAL_TYPES)[number],
+      amount,
+      renewalDate,
+      cadenceMonths: Number.isFinite(cadenceMonths) && cadenceMonths > 0 ? cadenceMonths : null,
+    },
+  });
+  revalidatePath("/budgets");
+}
+
+export async function renewRenewalAction(formData: FormData): Promise<void> {
+  const session = await requireAction("approvals:decide");
+  const id = String(formData.get("id") || "");
+  const renewal = await db.renewal.findFirst({ where: { id, workspaceId: session.workspaceId, status: "ACTIVE" } });
+  if (!renewal) redirect("/budgets");
+
+  const nextDate = renewal!.cadenceMonths
+    ? new Date(Date.UTC(renewal!.renewalDate.getUTCFullYear(), renewal!.renewalDate.getUTCMonth() + renewal!.cadenceMonths, renewal!.renewalDate.getUTCDate()))
+    : renewal!.renewalDate;
+
+  await db.renewal.update({
+    where: { id },
+    data: {
+      renewalDate: nextDate,
+      renewedAt: new Date(),
+      status: renewal!.cadenceMonths ? "ACTIVE" : "CANCELLED",
+    },
+  });
+  revalidatePath("/budgets");
+}
+
+export async function cancelRenewalAction(formData: FormData): Promise<void> {
+  const session = await requireAction("approvals:decide");
+  const id = String(formData.get("id") || "");
+  await db.renewal.updateMany({
+    where: { id, workspaceId: session.workspaceId, status: "ACTIVE" },
+    data: { status: "CANCELLED" },
+  });
+  revalidatePath("/budgets");
+}

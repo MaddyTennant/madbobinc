@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import type { Vertical } from "@prisma/client";
 import { db } from "@/lib/db";
 import { gatherEvidence, type EvidenceItem } from "@/lib/llm/evidence";
 import { callClaudeForJson, isLlmConfigured, OVERSIGHT_MODEL } from "@/lib/llm/client";
@@ -72,9 +73,13 @@ function mockInsightsFromEvidence(evidence: EvidenceItem[]): InsightCandidate[] 
   }));
 }
 
-async function llmInsightsFromEvidence(evidence: EvidenceItem[]): Promise<InsightCandidate[] | null> {
-  const prompt = `You are reviewing spend evidence for a restaurant. Each item below was computed by
-plain code from the restaurant's real transaction data — treat the numbers as ground truth, do not
+async function llmInsightsFromEvidence(evidence: EvidenceItem[], vertical: Vertical): Promise<InsightCandidate[] | null> {
+  const isTech = vertical === "TECH";
+  const subject = isTech ? "a technology company" : "a restaurant";
+  const subjectPossessive = isTech ? "the company's" : "the restaurant's";
+
+  const prompt = `You are reviewing spend evidence for ${subject}. Each item below was computed by
+plain code from ${subjectPossessive} real transaction data — treat the numbers as ground truth, do not
 recompute or invent different dollar figures. Your job is judgment and communication: decide which
 items are genuinely worth flagging to the owner, merge related items into one insight where it makes
 sense, assign a severity, and write a short, specific title/summary/recommendation for each.
@@ -87,8 +92,9 @@ the evidence above.`;
 
   const result = await callClaudeForJson({
     model: OVERSIGHT_MODEL,
-    system:
-      "You are an expert restaurant financial controller. You are precise, conservative with dollar figures, and never invent numbers that weren't given to you.",
+    system: isTech
+      ? "You are an expert technology company financial controller. You are precise, conservative with dollar figures, and never invent numbers that weren't given to you."
+      : "You are an expert restaurant financial controller. You are precise, conservative with dollar figures, and never invent numbers that weren't given to you.",
     prompt,
     schema: InsightsResponseSchema,
     jsonSchema: INSIGHTS_JSON_SCHEMA,
@@ -115,7 +121,13 @@ export async function generateInsights(workspaceId: string): Promise<GeneratedIn
 
   const evidenceById = new Map(evidence.map((e) => [e.id, e]));
   const usingLlm = isLlmConfigured();
-  const candidates = usingLlm ? (await llmInsightsFromEvidence(evidence)) ?? mockInsightsFromEvidence(evidence) : mockInsightsFromEvidence(evidence);
+  let candidates: InsightCandidate[];
+  if (usingLlm) {
+    const workspace = await db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { vertical: true } });
+    candidates = (await llmInsightsFromEvidence(evidence, workspace.vertical)) ?? mockInsightsFromEvidence(evidence);
+  } else {
+    candidates = mockInsightsFromEvidence(evidence);
+  }
   const generatedBy = usingLlm ? "llm" : "mock";
 
   const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);

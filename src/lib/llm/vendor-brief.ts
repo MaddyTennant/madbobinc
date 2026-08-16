@@ -104,7 +104,10 @@ export async function generateNegotiationBrief(workspaceId: string, vendorId: st
 
   let brief: string;
   if (isLlmConfigured()) {
-    const prompt = `Write a short negotiation brief a restaurant manager can bring into a renewal conversation
+    const workspace = await db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { vertical: true } });
+    const isTech = workspace.vertical === "TECH";
+
+    const prompt = `Write a short negotiation brief a ${isTech ? "procurement/finance lead" : "restaurant manager"} can bring into a renewal conversation
 with this vendor. Use ONLY the numbers given below — do not invent any figures. 4-6 short bullet points:
 recent price trend, how they compare to peer vendors in the same category, and 1-2 concrete negotiation asks.
 
@@ -112,7 +115,7 @@ ${JSON.stringify(inputs, null, 2)}`;
 
     const text = await callClaudeForText({
       model: OVERSIGHT_MODEL,
-      system: "You are a sharp, concise procurement negotiation advisor for an independent restaurant.",
+      system: `You are a sharp, concise procurement negotiation advisor for ${isTech ? "a technology company" : "an independent restaurant"}.`,
       prompt,
       maxTokens: 600,
     });

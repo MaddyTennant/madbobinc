@@ -24,9 +24,9 @@ export default async function VendorsPage() {
     .sort((a, b) => b.total - a.total);
 
   return (
-    <div className="max-w-4xl space-y-6 p-8">
+    <div className="mx-auto max-w-4xl space-y-6 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-stone-900">Vendors</h1>
+        <h1 className="text-xl font-normal tracking-tight text-stone-700">Vendors</h1>
         <p className="text-sm text-stone-500">Trailing 12-month spend across all connected sources.</p>
       </div>
 

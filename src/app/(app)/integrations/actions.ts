@@ -5,7 +5,14 @@ import { redirect } from "next/navigation";
 import type { ConnectorType } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireAction } from "@/lib/tenant";
-import { connectMockConnector, disconnectConnector, PROVIDER_CATALOG, runMockSync } from "@/lib/connectors";
+import {
+  connectMockConnector,
+  disconnectConnector,
+  PROVIDER_CATALOG,
+  runMockSync,
+  VERTICAL_CONNECTOR_TYPES,
+} from "@/lib/connectors";
+import { connectFastlyConnector, runFastlySync } from "@/lib/connectors/fastly";
 import { importTransactionsFromCsv } from "@/lib/csv-import";
 
 export async function connectConnectorAction(formData: FormData): Promise<void> {
@@ -16,12 +23,26 @@ export async function connectConnectorAction(formData: FormData): Promise<void> 
   const known = PROVIDER_CATALOG[type]?.some((p) => p.provider === provider);
   if (!known) redirect(`/integrations?error=${encodeURIComponent("Unknown provider selected.")}`);
 
+  const workspace = await db.workspace.findUniqueOrThrow({ where: { id: session.workspaceId } });
+  if (!VERTICAL_CONNECTOR_TYPES[workspace.vertical].includes(type)) {
+    redirect(`/integrations?error=${encodeURIComponent("That connector isn't available for this workspace's vertical.")}`);
+  }
+
   const credentials: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
     if (key.startsWith("cred_") && typeof value === "string") credentials[key.slice(5)] = value;
   }
 
-  await connectMockConnector(session.workspaceId, type, provider, credentials);
+  if (provider === "fastly") {
+    try {
+      await connectFastlyConnector(session.workspaceId, credentials);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not connect to Fastly.";
+      redirect(`/integrations?error=${encodeURIComponent(message)}`);
+    }
+  } else {
+    await connectMockConnector(session.workspaceId, type, provider, credentials);
+  }
   revalidatePath("/integrations");
 }
 
@@ -30,7 +51,10 @@ export async function syncConnectorAction(formData: FormData): Promise<void> {
   const connectorId = String(formData.get("connectorId") || "");
 
   const connector = await db.connector.findFirst({ where: { id: connectorId, workspaceId: session.workspaceId } });
-  if (connector) await runMockSync(connector.id);
+  if (connector) {
+    if (connector.provider === "fastly") await runFastlySync(connector.id);
+    else await runMockSync(connector.id);
+  }
   revalidatePath("/integrations");
 }
 

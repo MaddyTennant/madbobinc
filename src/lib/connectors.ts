@@ -1,5 +1,5 @@
 import "server-only";
-import type { ConnectorType } from "@prisma/client";
+import type { ConnectorType, Vertical } from "@prisma/client";
 import { db } from "@/lib/db";
 import { encryptSecret } from "@/lib/crypto";
 import { categorizeByText } from "@/lib/categorize";
@@ -26,6 +26,17 @@ export const PROVIDER_CATALOG: Record<ConnectorType, { provider: string; label: 
     { provider: "doordash", label: "DoorDash", credentialFields: ["API key"] },
     { provider: "ubereats", label: "Uber Eats", credentialFields: ["API key"] },
   ],
+  OBSERVABILITY: [{ provider: "datadog", label: "Datadog", credentialFields: ["API key", "App key"] }],
+  CDN: [{ provider: "fastly", label: "Fastly", credentialFields: ["API token"] }],
+  CLOUD: [{ provider: "azure", label: "Azure", credentialFields: ["Tenant ID", "Client ID", "Client secret"] }],
+};
+
+/** Which connector types are offered for each vertical on the Integrations page. */
+export const VERTICAL_CONNECTOR_TYPES: Record<Vertical, ConnectorType[]> = {
+  HOSPITALITY: ["POS", "ACCOUNTING", "SUPPLIER", "BANK", "PAYROLL", "DELIVERY"],
+  // Placeholder — Healthcare has no connector catalog of its own yet.
+  HEALTHCARE: ["POS", "ACCOUNTING", "SUPPLIER", "BANK", "PAYROLL", "DELIVERY"],
+  TECH: ["OBSERVABILITY", "CDN", "CLOUD"],
 };
 
 const SYNC_DESCRIPTIONS: Record<ConnectorType, string[]> = {
@@ -35,6 +46,9 @@ const SYNC_DESCRIPTIONS: Record<ConnectorType, string[]> = {
   BANK: ["card feed transaction", "bank debit"],
   PAYROLL: ["payroll wages", "staffing"],
   DELIVERY: ["doordash delivery commission", "ubereats delivery commission"],
+  OBSERVABILITY: ["APM host-hour usage", "log ingestion overage"],
+  CDN: ["bandwidth overage", "edge compute requests"],
+  CLOUD: ["compute VM usage", "storage egress"],
 };
 
 /** Strips the encrypted credential blob before a connector is ever serialized to a client. */
@@ -88,6 +102,7 @@ export async function disconnectConnector(connectorId: string, workspaceId: stri
  */
 export async function runMockSync(connectorId: string) {
   const connector = await db.connector.findUniqueOrThrow({ where: { id: connectorId } });
+  const workspace = await db.workspace.findUniqueOrThrow({ where: { id: connector.workspaceId } });
   const descriptions = SYNC_DESCRIPTIONS[connector.type];
   const batchSize = Math.floor(rand(3, 9));
 
@@ -122,7 +137,7 @@ export async function runMockSync(connectorId: string) {
       continue;
     }
 
-    const { categoryKey, confidence } = categorizeByText(descHint);
+    const { categoryKey, confidence } = categorizeByText(descHint, workspace.vertical);
     const category = categoryByKey.get(categoryKey) ?? categoryByKey.get("other");
 
     const vendor = await db.vendor.upsert({

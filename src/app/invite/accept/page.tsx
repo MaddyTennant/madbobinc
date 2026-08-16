@@ -34,7 +34,7 @@ export default async function AcceptInvitePage({
   return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-2xl font-semibold text-stone-900">Join {workspace?.name}</h1>
+        <h1 className="mb-1 text-2xl font-normal tracking-tight text-stone-700">Join {workspace?.name}</h1>
         <p className="mb-6 text-sm text-stone-500">
           You&apos;ve been invited as <span className="font-medium">{invite.role.replace("_", " ")}</span>.
         </p>

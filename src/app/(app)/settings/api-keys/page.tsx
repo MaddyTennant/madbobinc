@@ -21,9 +21,9 @@ export default async function ApiKeysPage() {
   const embedKey = keys.find((k) => k.scopes.includes("embed") && !k.revokedAt);
 
   return (
-    <div className="max-w-3xl space-y-8 p-8">
+    <div className="mx-auto max-w-3xl space-y-8 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-stone-900">API &amp; Embed</h1>
+        <h1 className="text-xl font-normal tracking-tight text-stone-700">API &amp; Embed</h1>
         <p className="text-sm text-stone-500">
           Surface spend data inside your own internal portal via the REST API, or embed a read-only widget.
         </p>

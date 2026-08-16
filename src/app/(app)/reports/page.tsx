@@ -8,10 +8,10 @@ export default async function ReportsPage() {
   const report = await generateMonthlyReport(session.workspaceId);
 
   return (
-    <div className="max-w-3xl space-y-6 p-8">
+    <div className="mx-auto max-w-3xl space-y-6 p-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-stone-900">Reports</h1>
+          <h1 className="text-xl font-normal tracking-tight text-stone-700">Reports</h1>
           <p className="text-sm text-stone-500">AI-written monthly summary, plus raw data export.</p>
           {!isLlmConfigured() ? (
             <p className="mt-1 text-xs text-amber-600">

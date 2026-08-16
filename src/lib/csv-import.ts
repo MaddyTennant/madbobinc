@@ -63,6 +63,7 @@ export function parseCsv(text: string): Record<string, string>[] {
  */
 export async function importTransactionsFromCsv(workspaceId: string, csvText: string): Promise<CsvImportResult> {
   const rows = parseCsv(csvText);
+  const workspace = await db.workspace.findUniqueOrThrow({ where: { id: workspaceId } });
   const categories = await db.category.findMany({ where: { workspaceId } });
   const categoryByKey = new Map(categories.map((c) => [c.key, c]));
 
@@ -96,7 +97,7 @@ export async function importTransactionsFromCsv(workspaceId: string, csvText: st
 
     const description = r.description || vendorName;
     const requestedCategory = r.category ? categoryByKey.get(r.category) : undefined;
-    const auto = categorizeByText(description);
+    const auto = categorizeByText(description, workspace.vertical);
     const category = requestedCategory ?? categoryByKey.get(auto.categoryKey);
 
     await db.transaction.create({

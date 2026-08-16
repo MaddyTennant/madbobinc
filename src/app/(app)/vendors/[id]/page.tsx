@@ -32,12 +32,12 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
   const canGenerateBrief = can(session.role, "budgets:manage");
 
   return (
-    <div className="max-w-3xl space-y-6 p-8">
+    <div className="mx-auto max-w-3xl space-y-6 p-8">
       <div>
         <Link href="/vendors" className="text-sm text-brand-600 hover:underline">
           &larr; Vendors
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-stone-900">{vendor.name}</h1>
+        <h1 className="mt-1 text-xl font-normal tracking-tight text-stone-700">{vendor.name}</h1>
         <p className="text-sm text-stone-500">
           {vendor.paymentTerms ? `Payment terms: ${vendor.paymentTerms} · ` : ""}
           All-time spend: {formatCurrency(spendAgg._sum.amount ?? 0, workspace.currency)}

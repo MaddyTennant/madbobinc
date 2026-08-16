@@ -12,7 +12,8 @@ export type Action =
   | "team:manage"
   | "apikeys:manage"
   | "dashboard:view"
-  | "transactions:manage";
+  | "transactions:manage"
+  | "workspace:manage";
 
 const ROLE_ACTIONS: Record<Role, Action[]> = {
   OWNER: [
@@ -28,6 +29,7 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     "apikeys:manage",
     "dashboard:view",
     "transactions:manage",
+    "workspace:manage",
   ],
   FINANCE_MANAGER: [
     "integrations:manage",

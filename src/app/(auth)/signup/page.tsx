@@ -16,7 +16,7 @@ export default async function SignupPage({
           <Logo />
           <span className="text-sm font-medium text-stone-500">Madbob Spend</span>
         </div>
-        <h1 className="mb-1 text-2xl font-semibold text-stone-900">Create your account</h1>
+        <h1 className="mb-1 text-2xl font-normal tracking-tight text-stone-700">Create your account</h1>
         <p className="mb-6 text-sm text-stone-500">
           Your data stays inside your restaurant&apos;s own workspace.
         </p>

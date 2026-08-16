@@ -35,9 +35,9 @@ export default async function TeamPage({
   }
 
   return (
-    <div className="max-w-3xl space-y-6 p-8">
+    <div className="mx-auto max-w-3xl space-y-6 p-8">
       <div>
-        <h1 className="text-xl font-semibold text-stone-900">Team</h1>
+        <h1 className="text-xl font-normal tracking-tight text-stone-700">Team</h1>
         <p className="text-sm text-stone-500">
           Everyone here can only see data inside this workspace. Roles control what they can act on.
         </p>

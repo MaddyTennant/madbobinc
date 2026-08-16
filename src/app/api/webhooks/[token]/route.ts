@@ -34,9 +34,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   }
   const data = parsed.data;
 
+  const workspace = await db.workspace.findUniqueOrThrow({ where: { id: endpoint.workspaceId } });
   const categories = await db.category.findMany({ where: { workspaceId: endpoint.workspaceId } });
   const requestedCategory = data.category ? categories.find((c) => c.key === data.category) : undefined;
-  const auto = categorizeByText(data.description ?? data.vendor);
+  const auto = categorizeByText(data.description ?? data.vendor, workspace.vertical);
   const category = requestedCategory ?? categories.find((c) => c.key === auto.categoryKey);
 
   const vendor = await db.vendor.upsert({

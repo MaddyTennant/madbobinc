@@ -19,3 +19,5 @@
 9. Reporting & export - Generate a monthly AI spend summary (written narrative + key numbers + top actions), export data to CSV, and download a PDF report for owners or accountants.
 
 10. Embeddable widget & API access - So the tool can live inside the company's existing stack: an embeddable read-only dashboard/query widget (iframe snippet with a scoped token) plus a documented REST endpoint and API key management page, letting the company surface spend insights inside their own internal portal.
+
+11. Dependency versions - A separate page showing current vs. recommended package versions across the company's repos. Also a real integration: it authenticates with a GitLab API token and pulls the latest Renovate report straight from a GitLab CI job's artifacts (current version, recommended version, and update type — major/minor/patch — per package).

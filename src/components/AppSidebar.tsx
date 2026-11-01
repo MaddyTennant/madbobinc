@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Vertical } from "@prisma/client";
 import {
   ChevronsLeft,
   ChevronsRight,
@@ -34,6 +35,7 @@ import {
   Trash2,
   Building2,
   User as UserIcon,
+  PackageSearch,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { logoutAction } from "../app/(auth)/actions";
@@ -50,6 +52,7 @@ export interface AppSidebarProps {
   workspaceName: string;
   history: HistoryItem[];
   user: { name: string; role: string };
+  vertical: Vertical;
 }
 
 const NAV_ITEMS = [
@@ -62,6 +65,10 @@ const NAV_ITEMS = [
   { href: "/settings/workspace", label: "Workspace", icon: Building2 },
   { href: "/settings/team", label: "Team", icon: Users },
 ] as const;
+
+// Only relevant to the Tech vertical (backed by the Renovate connector) —
+// see VERTICAL_CONNECTOR_TYPES in src/lib/connectors.ts.
+const TECH_NAV_ITEM = { href: "/dependencies", label: "Dependencies", icon: PackageSearch } as const;
 
 const COLLAPSE_COOKIE = "sidebar:collapsed";
 
@@ -91,8 +98,9 @@ function groupByRecency(items: HistoryItem[]) {
   return Object.entries(groups).filter(([, v]) => v.length > 0) as [string, HistoryItem[]][];
 }
 
-export default function AppSidebar({ workspaceName, history, user }: AppSidebarProps) {
+export default function AppSidebar({ workspaceName, history, user, vertical }: AppSidebarProps) {
   const pathname = usePathname();
+  const navItems = vertical === "TECH" ? [...NAV_ITEMS, TECH_NAV_ITEM] : NAV_ITEMS;
   const [collapsed, setCollapsed] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [openChatMenu, setOpenChatMenu] = useState<{ id: string; top: number; right: number } | null>(null);
@@ -188,7 +196,7 @@ export default function AppSidebar({ workspaceName, history, user }: AppSidebarP
       {/* Primary nav */}
       <nav className="px-2">
         <ul className="flex flex-col gap-0.5">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname?.startsWith(href + "/");
             return (
               <li key={href}>

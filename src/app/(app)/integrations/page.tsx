@@ -16,6 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
   OBSERVABILITY: "Observability",
   CDN: "CDN / Edge",
   CLOUD: "Cloud Infrastructure",
+  DEPENDENCIES: "Dependency Versions",
 };
 
 const STATUS_STYLES: Record<string, string> = {

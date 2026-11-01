@@ -21,6 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex h-screen overflow-hidden">
       <AppSidebar
         workspaceName={workspace.name}
+        vertical={workspace.vertical}
         user={{ name: session.name, role: session.role.replace("_", " ") }}
         history={recentConversations.map((c) => ({
           id: c.id,

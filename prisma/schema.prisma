@@ -46,6 +46,7 @@ model Workspace {
   queryHistory     QueryHistory[]
   apiKeys          ApiKey[]
   sites            Site[]
+  dependencyVersions DependencyVersion[]
 }
 
 // A physical location within a workspace (e.g. "Ruth's Downtown", "Ruth's Uptown").
@@ -111,6 +112,7 @@ enum ConnectorType {
   OBSERVABILITY
   CDN
   CLOUD
+  DEPENDENCIES
 }
 
 enum ConnectorStatus {
@@ -134,8 +136,40 @@ model Connector {
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  dependencyVersions DependencyVersion[]
 
   @@unique([workspaceId, type, provider])
+}
+
+// A point-in-time snapshot row from a Renovate report (current vs. recommended
+// package version). Fully replaced on every sync — see runRenovateSync in
+// src/lib/connectors/renovate.ts — since each Renovate report is a complete
+// inventory, not an incremental delta.
+model DependencyVersion {
+  id                 String   @id @default(cuid())
+  repository         String // e.g. "claysolutions/clp/devops/playground/renovate-terraform-k8s"
+  manager            String // e.g. "terraform", "dockerfile", "kubernetes", "github-actions"
+  packageFile        String // file path within the repo
+  depName            String
+  depType            String? // e.g. "required_provider" vs "provider" (Terraform) — disambiguates
+  // same depName+manager appearing in more than one role within a file
+  currentValue       String?
+  currentVersion     String?
+  // Renovate can offer a safe (non-major) bump and a breaking (major) bump for the
+  // same dependency at once — kept as separate columns rather than collapsed into
+  // one "recommended" value, so a major bump is never silently preferred/hidden.
+  nextMinorVersion   String? // highest available non-major (patch/minor) bump, null if none
+  nextMinorUpdateType String? // "minor" | "patch" | "digest" | null
+  nextMajorVersion   String? // highest available major bump, null if none
+  isUpToDate         Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  connectorId String
+  connector   Connector @relation(fields: [connectorId], references: [id])
+
+  @@unique([connectorId, repository, manager, packageFile, depName, depType])
 }
 
 model WebhookEndpoint {

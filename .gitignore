@@ -7,3 +7,7 @@ node_modules
 .DS_Store
 _tmp_*
 src/app/api/dbgtools/
+.vercel
+.env*
+docs/HospoPeeps.xlsx
+docs/~$HospoPeeps.xlsx

@@ -29,6 +29,13 @@ export const PROVIDER_CATALOG: Record<ConnectorType, { provider: string; label: 
   OBSERVABILITY: [{ provider: "datadog", label: "Datadog", credentialFields: ["API key", "App key"] }],
   CDN: [{ provider: "fastly", label: "Fastly", credentialFields: ["API token"] }],
   CLOUD: [{ provider: "azure", label: "Azure", credentialFields: ["Tenant ID", "Client ID", "Client secret"] }],
+  DEPENDENCIES: [
+    {
+      provider: "renovate",
+      label: "Renovate (dependency versions)",
+      credentialFields: ["GitLab API token", "Project ID or path", "CI job name", "Branch ref"],
+    },
+  ],
 };
 
 /** Which connector types are offered for each vertical on the Integrations page. */
@@ -36,7 +43,7 @@ export const VERTICAL_CONNECTOR_TYPES: Record<Vertical, ConnectorType[]> = {
   HOSPITALITY: ["POS", "ACCOUNTING", "SUPPLIER", "BANK", "PAYROLL", "DELIVERY"],
   // Placeholder — Healthcare has no connector catalog of its own yet.
   HEALTHCARE: ["POS", "ACCOUNTING", "SUPPLIER", "BANK", "PAYROLL", "DELIVERY"],
-  TECH: ["OBSERVABILITY", "CDN", "CLOUD"],
+  TECH: ["OBSERVABILITY", "CDN", "CLOUD", "DEPENDENCIES"],
 };
 
 const SYNC_DESCRIPTIONS: Record<ConnectorType, string[]> = {
@@ -49,6 +56,8 @@ const SYNC_DESCRIPTIONS: Record<ConnectorType, string[]> = {
   OBSERVABILITY: ["APM host-hour usage", "log ingestion overage"],
   CDN: ["bandwidth overage", "edge compute requests"],
   CLOUD: ["compute VM usage", "storage egress"],
+  // Renovate never uses runMockSync — it's a real integration (src/lib/connectors/renovate.ts).
+  DEPENDENCIES: [],
 };
 
 /** Strips the encrypted credential blob before a connector is ever serialized to a client. */

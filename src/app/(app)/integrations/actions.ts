@@ -13,6 +13,7 @@ import {
   VERTICAL_CONNECTOR_TYPES,
 } from "@/lib/connectors";
 import { connectFastlyConnector, runFastlySync } from "@/lib/connectors/fastly";
+import { connectRenovateConnector, runRenovateSync } from "@/lib/connectors/renovate";
 import { importTransactionsFromCsv } from "@/lib/csv-import";
 
 export async function connectConnectorAction(formData: FormData): Promise<void> {
@@ -40,6 +41,13 @@ export async function connectConnectorAction(formData: FormData): Promise<void> 
       const message = err instanceof Error ? err.message : "Could not connect to Fastly.";
       redirect(`/integrations?error=${encodeURIComponent(message)}`);
     }
+  } else if (provider === "renovate") {
+    try {
+      await connectRenovateConnector(session.workspaceId, credentials);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not connect to Renovate.";
+      redirect(`/integrations?error=${encodeURIComponent(message)}`);
+    }
   } else {
     await connectMockConnector(session.workspaceId, type, provider, credentials);
   }
@@ -53,6 +61,7 @@ export async function syncConnectorAction(formData: FormData): Promise<void> {
   const connector = await db.connector.findFirst({ where: { id: connectorId, workspaceId: session.workspaceId } });
   if (connector) {
     if (connector.provider === "fastly") await runFastlySync(connector.id);
+    else if (connector.provider === "renovate") await runRenovateSync(connector.id);
     else await runMockSync(connector.id);
   }
   revalidatePath("/integrations");

@@ -284,6 +284,29 @@ async function main() {
     data: { workspaceId: workspace.id, token: `whk_${workspace.id.slice(0, 12)}`, label: "Generic inbound webhook" },
   });
 
+  // Normal onboarding (src/app/workspace/new/actions.ts) creates a default Site
+  // alongside the workspace; this direct-Prisma seed has to do the same by hand.
+  await db.site.create({
+    data: { workspaceId: workspace.id, name: "Ruths — Amsterdam", location: workspace.location, isDefault: true },
+  });
+  console.log("Seeded default site");
+
+  const renewalSeeds: { name: string; type: "INSURANCE" | "LICENSE" | "SUBSCRIPTION"; amount: number; daysFromNow: number; cadenceMonths?: number }[] = [
+    { name: "General Liability Insurance", type: "INSURANCE", amount: 4200, daysFromNow: 18, cadenceMonths: 12 },
+    { name: "Toast POS Subscription", type: "SUBSCRIPTION", amount: 269, daysFromNow: 9, cadenceMonths: 1 },
+    { name: "Liquor License Renewal", type: "LICENSE", amount: 850, daysFromNow: 42, cadenceMonths: 12 },
+    { name: "Square Register Subscription", type: "SUBSCRIPTION", amount: 89, daysFromNow: 3, cadenceMonths: 1 },
+    { name: "Fire Safety Inspection Permit", type: "LICENSE", amount: 300, daysFromNow: -5, cadenceMonths: 12 },
+  ];
+  for (const r of renewalSeeds) {
+    const renewalDate = new Date(today);
+    renewalDate.setUTCDate(renewalDate.getUTCDate() + r.daysFromNow);
+    await db.renewal.create({
+      data: { workspaceId: workspace.id, name: r.name, type: r.type, amount: r.amount, renewalDate, cadenceMonths: r.cadenceMonths, status: "ACTIVE" },
+    });
+  }
+  console.log(`Seeded ${renewalSeeds.length} renewals`);
+
   console.log("\nDemo login (any role, same password):");
   console.log("  owner@ruths.demo / finance@ruths.demo / kitchen@ruths.demo / viewer@ruths.demo");
   console.log(`  password: ${DEMO_PASSWORD}`);
